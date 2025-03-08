@@ -1,6 +1,8 @@
 import { z } from 'zod';
 import { IUser, User } from './user.model';
 import { AppError } from '../../core/errors/appError';
+import bcrypt from 'bcryptjs';
+import { Request } from 'express';
 
 const createUserValidation = z.object({
   name: z.string().min(5),
@@ -15,18 +17,33 @@ const updateUserValidation = z.object({
 });
 
 export class UserService {
+  private saltRounds = 10;
+
+  async hashPassword(password: string): Promise<string> {
+    return await bcrypt.hash(password, this.saltRounds);
+  }
+
   async createUser(data: Partial<IUser>): Promise<IUser> {
     const validation = createUserValidation.safeParse(data);
     if (!validation.success) {
       throw new AppError('Validation Error', 400, validation.error.errors);
     }
 
+    const { email, password, name } = data;
+    const hashPassword = await this.hashPassword(password!);
+
+    const newData = {
+      email: email,
+      password: hashPassword,
+      name: name,
+    };
+
     const existingUser = await User.findOne({ email: data.email });
     if (existingUser) {
       throw new AppError('Email already exists', 409);
     }
 
-    return await User.create(data);
+    return await User.create(newData);
   }
 
   async getUsers(): Promise<IUser[]> {
@@ -40,11 +57,17 @@ export class UserService {
     return user;
   }
 
-  async updateUser(id: string, data: Partial<IUser>): Promise<IUser> {
+  async updateUser(id: string, data: Partial<IUser>, req: Request): Promise<IUser> {
     const validation = updateUserValidation.safeParse(data);
 
     if (!validation.success) {
       throw new AppError('invalid data', 400, validation.error.errors);
+    }
+
+    if (id !== req.user!.id) throw new AppError('access denied', 403);
+
+    if (data.password) {
+      data.password = await this.hashPassword(data.password);
     }
 
     const user = await User.findByIdAndUpdate(
@@ -58,7 +81,9 @@ export class UserService {
     return user;
   }
 
-  async deleteUser(id: string): Promise<void> {
+  async deleteUser(id: string, req: Request): Promise<void> {
+    if (id !== req.user!.id) throw new AppError('access denied', 403);
+
     const result = await User.findByIdAndDelete(id);
 
     if (!result) throw new AppError('user not found', 404);
