@@ -26,7 +26,7 @@ export class UserService {
   async createUser(data: Partial<IUser>): Promise<IUser> {
     const validation = createUserValidation.safeParse(data);
     if (!validation.success) {
-      throw new AppError('Validation Error', 400, validation.error.errors);
+      throw new AppError('invalid data', 400, validation.error.errors);
     }
 
     const { email, password, name } = data;
@@ -40,7 +40,7 @@ export class UserService {
 
     const existingUser = await User.findOne({ email: data.email });
     if (existingUser) {
-      throw new AppError('Email already exists', 409);
+      throw new AppError('email already exists', 409);
     }
 
     return await User.create(newData);
@@ -59,7 +59,6 @@ export class UserService {
 
   async updateUser(id: string, data: Partial<IUser>, req: Request): Promise<IUser> {
     const validation = updateUserValidation.safeParse(data);
-
     if (!validation.success) {
       throw new AppError('invalid data', 400, validation.error.errors);
     }

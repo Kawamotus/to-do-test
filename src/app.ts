@@ -2,7 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import authRoutes from './modules/auth/auth.routes';
 import userRoutes from './modules/user/user.routes';
-//import taskRoutes from "./modules/task/task.routes"
+import taskRoutes from './modules/task/task.routes';
 import { errorHandler } from './core/http/errorHandler';
 
 class App {
@@ -33,6 +33,7 @@ class App {
   private routes(): void {
     this.express.use(authRoutes);
     this.express.use(userRoutes);
+    this.express.use(taskRoutes);
   }
 
   private errorHandling(): void {

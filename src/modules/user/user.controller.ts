@@ -36,7 +36,7 @@ export class UserController {
 
   async updateUser(req: Request, res: Response, next: NextFunction) {
     try {
-      const user = await this.userService.updateUser(req.params.id, req.body, req);
+      await this.userService.updateUser(req.params.id, req.body, req);
       res.status(204).send();
     } catch (e) {
       next(e);
