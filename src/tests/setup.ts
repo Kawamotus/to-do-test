@@ -1,9 +1,11 @@
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
+import dotenv from 'dotenv';
 
 let mongoServer: MongoMemoryServer;
 
 beforeAll(async () => {
+  dotenv.config();
   mongoServer = await MongoMemoryServer.create();
   const uri = mongoServer.getUri();
   await mongoose.disconnect();
