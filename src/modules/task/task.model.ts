@@ -4,7 +4,7 @@ export interface ITask extends Document {
   title: string;
   description?: string;
   status: 'pendente' | 'em progresso' | 'concluída';
-  user: Types.ObjectId;
+  user: Types.ObjectId | string;
   createdAt: Date;
   updatedAt: Date;
 }

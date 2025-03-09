@@ -14,7 +14,7 @@ describe('UserService', () => {
     userService = new UserService();
   });
 
-  test('createUser() - should create a new valid user', async () => {
+  test('createUser() - should create a new user', async () => {
     const user = await userService.createUser(userData);
 
     expect(user).toHaveProperty('_id');

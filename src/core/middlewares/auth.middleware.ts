@@ -14,7 +14,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
   const token = req.headers.authorization?.split(' ')[1];
 
   if (!token) {
-    return next(new AppError('access denied', 401));
+    return next(new AppError('access denied, no token', 401));
   }
 
   try {
