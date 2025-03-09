@@ -1,7 +1,7 @@
 import { AppError } from '../../../core/errors/appError';
 import { UserService } from '../user.service';
 
-describe('UserService', () => {
+describe('UserService for correct returns and errors', () => {
   let userService: UserService;
 
   const userData = {
@@ -14,7 +14,7 @@ describe('UserService', () => {
     userService = new UserService();
   });
 
-  test('createUser() - should create a new user', async () => {
+  test('createUser()', async () => {
     const user = await userService.createUser(userData);
 
     expect(user).toHaveProperty('_id');
@@ -27,7 +27,7 @@ describe('UserService', () => {
     ).rejects.toThrow(AppError);
   });
 
-  test('getUsers() - should return all users', async () => {
+  test('getUsers()', async () => {
     await userService.createUser(userData);
 
     const users = await userService.getUsers();
@@ -36,7 +36,7 @@ describe('UserService', () => {
     expect(users[0].email).toBe('cu@hojiljo.bs');
   });
 
-  test('getUserById() - should return an user by id', async () => {
+  test('getUserById()', async () => {
     const newUser = await userService.createUser(userData);
     const userId = String(newUser._id);
 
@@ -46,7 +46,7 @@ describe('UserService', () => {
     expect(response).toHaveProperty('_id');
   });
 
-  test('updateUser() - should update an user', async () => {
+  test('updateUser()', async () => {
     const newUser = await userService.createUser(userData);
     const userId = String(newUser._id);
 
@@ -69,7 +69,7 @@ describe('UserService', () => {
     expect(updatedUser.name).toEqual('Clarence Knight');
   });
 
-  test('deleteUser() - should delete an user', async () => {
+  test('deleteUser()', async () => {
     const newUser = await userService.createUser(userData);
     const userId = String(newUser._id);
 

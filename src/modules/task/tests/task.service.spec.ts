@@ -1,9 +1,8 @@
-import mongoose from 'mongoose';
 import { AppError } from '../../../core/errors/appError';
 import { UserService } from '../../user/user.service';
 import { TaskService } from '../task.service';
 
-describe('TaskService', () => {
+describe('TaskService for correct returns and errors', () => {
   let taskService: TaskService;
   let userService: UserService;
 
@@ -23,7 +22,7 @@ describe('TaskService', () => {
     userService = new UserService();
   });
 
-  test('createTask() - should create a new task', async () => {
+  test('createTask()', async () => {
     const user = await userService.createUser(userData);
     const userId = String(user._id);
     const newTask = { ...taskData, user: userId };
@@ -37,7 +36,7 @@ describe('TaskService', () => {
     await expect(taskService.createTask({ user: userId })).rejects.toThrow(AppError);
   });
 
-  test('getAllTasks() - should return all tasks', async () => {
+  test('getAllTasks()', async () => {
     const beforeCreate = await taskService.getAllTasks();
     expect(beforeCreate.length).toBe(0);
 
@@ -57,7 +56,7 @@ describe('TaskService', () => {
     expect(tasks[3]).toBeUndefined();
   });
 
-  test('getTasksByUser() - should return all tasks from one user', async () => {
+  test('getTasksByUser()', async () => {
     const user = await userService.createUser(userData);
     const userId = String(user._id);
     const newTask = { ...taskData, user: userId };
@@ -73,7 +72,7 @@ describe('TaskService', () => {
     expect(tasks[2]).toBeUndefined();
   });
 
-  test('getTaskById() - should return a task by id', async () => {
+  test('getTaskById()', async () => {
     const user = await userService.createUser(userData);
     const userId = String(user._id);
     const newTask = { ...taskData, user: userId };
@@ -86,7 +85,7 @@ describe('TaskService', () => {
     expect(task.title).toBe(taskData.title);
   });
 
-  test('updateTaskById() - should update a task by ids', async () => {
+  test('updateTaskById()', async () => {
     const user = await userService.createUser(userData);
     const userId = String(user._id);
     const newTask = { ...taskData, user: userId };
@@ -110,7 +109,7 @@ describe('TaskService', () => {
     expect(String(task.user)).toBe(userId);
   });
 
-  test('deleteTask() - should delete a task', async () => {
+  test('deleteTask()', async () => {
     const user = await userService.createUser(userData);
     const userId = String(user._id);
     const newTask = { ...taskData, user: userId };

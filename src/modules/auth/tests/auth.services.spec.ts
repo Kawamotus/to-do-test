@@ -2,7 +2,7 @@ import { AppError } from '../../../core/errors/appError';
 import { UserService } from '../../user/user.service';
 import { AuthService } from '../auth.service';
 
-describe('AuthService', () => {
+describe('AuthService for correct returns and errors', () => {
   let userService: UserService;
   let authService: AuthService;
 
@@ -17,7 +17,7 @@ describe('AuthService', () => {
     authService = new AuthService();
   });
 
-  test('login() - should return a token', async () => {
+  test('login()', async () => {
     await userService.createUser(userData);
 
     await authService.login(userData.email, userData.password);
