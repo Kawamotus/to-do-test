@@ -57,27 +57,27 @@ export class UserService {
     return user;
   }
 
-  async updateUser(id: string, data: Partial<IUser>, req: Request): Promise<IUser> {
+  async updateUser(id: string, data: Partial<IUser>, { user }: Request): Promise<IUser> {
     const validation = updateUserValidation.safeParse(data);
     if (!validation.success) {
       throw new AppError('invalid data', 400, validation.error.errors);
     }
 
-    if (id !== req.user!.id) throw new AppError('access denied', 403);
+    if (id !== user!.id) throw new AppError('access denied', 403);
 
     if (data.password) {
       data.password = await this.hashPassword(data.password);
     }
 
-    const user = await User.findByIdAndUpdate(
+    const userUpdated = await User.findByIdAndUpdate(
       id,
       { $set: data },
       { new: true, runValidators: true },
     ).select('-password');
 
-    if (!user) throw new AppError('user not found', 404);
+    if (!userUpdated) throw new AppError('user not found', 404);
 
-    return user;
+    return userUpdated;
   }
 
   async deleteUser(id: string, req: Request): Promise<void> {
