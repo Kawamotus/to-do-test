@@ -14,7 +14,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
   const token = req.headers.authorization?.split(' ')[1];
 
   if (!token) {
-    return next(new AppError('access denied, no token', 401));
+    return next(new AppError('access denied, no token', 403));
   }
 
   try {
@@ -22,6 +22,6 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
     req.user = { id: decoded.userId };
     next();
   } catch (e) {
-    next(new AppError('invalid token', 401));
+    next(new AppError('invalid token', 403));
   }
 };

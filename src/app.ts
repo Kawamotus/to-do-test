@@ -4,6 +4,8 @@ import authRoutes from './modules/auth/auth.routes';
 import userRoutes from './modules/user/user.routes';
 import taskRoutes from './modules/task/task.routes';
 import { errorHandler } from './core/http/errorHandler';
+import swaggerUi from 'swagger-ui-express';
+import swaggerDocs from './swagger.json';
 
 class App {
   public express: express.Application;
@@ -34,6 +36,7 @@ class App {
     this.express.use(authRoutes);
     this.express.use(userRoutes);
     this.express.use(taskRoutes);
+    this.express.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
   }
 
   private errorHandling(): void {

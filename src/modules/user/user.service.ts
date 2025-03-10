@@ -40,7 +40,7 @@ export class UserService {
 
     const existingUser = await User.findOne({ email: data.email });
     if (existingUser) {
-      throw new AppError('email already exists', 409);
+      throw new AppError('email already exists', 400);
     }
 
     return await User.create(newData);

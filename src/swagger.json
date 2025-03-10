@@ -1,0 +1,303 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API de lista de tarefas",
+    "description": "API completa para gerenciamento de tarefas com autenticação JWT.<br><br>- **Autenticação**: Todos os endpoints (exceto /register e /login) requerem token JWT no header `Authorization: Bearer {token}`<br> - **Status das Tasks**: Valores permitidos - `pendente`, `em progresso`, `concluída`",
+    "contact": { "email": "gustavo.kawamoto@hotmail.com" }
+  },
+  "version": "1.0.0",
+  "servers": [
+    {
+      "url": "http://localhost:3000/",
+      "description": "API de testes"
+    }
+  ],
+  "paths": {
+    "/login": {
+      "post": {
+        "summary": "Login",
+        "description": "Rota responsável por validar as credenciais e gerar um token",
+        "tags": ["Autenticação"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "joao@exemplo.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "example": "Senha@123"
+                  }
+                }
+              },
+              "examples": {
+                "usuário": {
+                  "value": {
+                    "email": "email@example.com",
+                    "password": "senhaforte"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": { "description": "email and password are required" },
+          "401": { "description": "email or password are incorrect" },
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string",
+                      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/register": {
+      "post": {
+        "summary": "Registro de usuário",
+        "description": "Rota responsável por criar um novo usuário",
+        "tags": ["Usuário"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              },
+              "examples": {
+                "usuário": {
+                  "value": {
+                    "name": "Nome Sobrenome",
+                    "email": "email@example.com",
+                    "password": "senhaforte"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": { "description": "email already exists" },
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": { "type": "object", "$ref": "#/components/schemas/User" }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/users": {
+      "get": {
+        "summary": "Listagem de todos os usuários",
+        "description": "Rota responsável por listar todos os usuários",
+        "tags": ["Usuário"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "403": {
+            "description": "access denied, no token"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "$ref": "#/components/schemas/UserResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/users/{id}": {
+      "get": {
+        "tags": ["Usuário"],
+        "summary": "Busca de usuário por ID",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "mongo-id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "type": "object", "$ref": "#/components/schemas/UserResponse" }
+              }
+            }
+          },
+          "403": { "description": "access denied, no token" },
+          "404": { "description": "user not found" }
+        }
+      }
+    },
+
+    "/users/update/{id}": {
+      "patch": {
+        "summary": "Atualização de usuário",
+        "description": "Rota responsável por atualizar um usuário",
+        "security": [{ "bearerAuth": [] }],
+        "tags": ["Usuário"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "mongo-id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              },
+              "examples": {
+                "usuário": {
+                  "value": {
+                    "name": "Nome Sobrenome",
+                    "email": "email@example.com",
+                    "password": "senhaforte"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": { "description": "one or more fields are wrong" },
+          "403": { "description": "access denied" },
+          "404": { "description": "user not found" },
+          "204": {
+            "description": "No content"
+          }
+        }
+      }
+    },
+
+    "/users/delete/{id}": {
+      "delete": {
+        "tags": ["Usuário"],
+        "summary": "Excluir um usuário",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "mongo-id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No content"
+          },
+          "403": {
+            "description": "access denied"
+          },
+          "404": {
+            "description": "user not found"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "Login": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "UserResponse": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "example": "665f1a2e3c4d5e6f7g8h9i0j"
+          },
+          "name": {
+            "type": "string",
+            "example": "João Silva"
+          },
+          "email": {
+            "type": "string",
+            "example": "joao@exemplo.com"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-06-03T12:00:00.000Z"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}
