@@ -56,10 +56,14 @@ export class TaskService {
   }
 
   async deleteTask(id: string, req: Request): Promise<void> {
+    const task = await Task.findById(id);
+    if (!task) {
+      throw new AppError('task not found', 404);
+    }
+
     const idTask = (await Task.findById(id)) as ITask;
     if (idTask.user.toString() !== req.user!.id) throw new AppError('access denied', 403);
 
-    const result = await Task.findByIdAndDelete(id);
-    if (!result) throw new AppError('task not found', 404);
+    await Task.findByIdAndDelete(id);
   }
 }

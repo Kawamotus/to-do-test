@@ -240,6 +240,196 @@
           }
         }
       }
+    },
+
+    "/tasks/new": {
+      "post": {
+        "summary": "Registro de tarefa",
+        "description": "Rota responsável por criar uma nova tarefa",
+        "tags": ["Tarefa"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Task"
+              },
+              "examples": {
+                "usuário": {
+                  "value": {
+                    "title": "Titulo da tarefa",
+                    "description": "Descrição da tarefa",
+                    "status": "pendente"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": { "description": "title is required" },
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": { "type": "object", "$ref": "#/components/schemas/TaskResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/tasks/all": {
+      "get": {
+        "summary": "Listagem de todos as tarefas",
+        "description": "Rota responsável por listar todas as tarefas",
+        "tags": ["Tarefa"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "403": {
+            "description": "access denied, no token"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "$ref": "#/components/schemas/TaskResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/tasks/user": {
+      "get": {
+        "tags": ["Tarefa"],
+        "summary": "Busca de todas as tarefas do usuário logado",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "$ref": "#/components/schemas/TaskResponse" }
+              }
+            }
+          },
+          "403": { "description": "access denied, no token" }
+        }
+      }
+    },
+
+    "/tasks/{id}": {
+      "get": {
+        "tags": ["Tarefa"],
+        "summary": "Busca de tarefa por ID",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "mongo-id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "type": "object", "$ref": "#/components/schemas/TaskResponse" }
+              }
+            }
+          },
+          "403": { "description": "access denied, no token" },
+          "404": { "description": "task not found" }
+        }
+      }
+    },
+
+    "/tasks/update/{id}": {
+      "patch": {
+        "summary": "Atualização de tarefa",
+        "description": "Rota responsável por atualizar uma tarefa",
+        "security": [{ "bearerAuth": [] }],
+        "tags": ["Tarefa"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "mongo-id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Task"
+              },
+              "examples": {
+                "usuário": {
+                  "value": {
+                    "title": "Titulo da tarefa",
+                    "description": "Descrição da tarefa",
+                    "status": "pendente"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": { "description": "one or more fields are wrong" },
+          "403": { "description": "access denied" },
+          "404": { "description": "task not found" },
+          "204": {
+            "description": "No content"
+          }
+        }
+      }
+    },
+
+    "/tasks/delete/{id}": {
+      "delete": {
+        "tags": ["Tarefa"],
+        "summary": "Excluir uma tarefa",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "mongo-id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No content"
+          },
+          "403": {
+            "description": "access denied"
+          },
+          "404": {
+            "description": "task not found"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -258,6 +448,7 @@
           }
         }
       },
+
       "Login": {
         "type": "object",
         "properties": {
@@ -269,6 +460,7 @@
           }
         }
       },
+
       "UserResponse": {
         "type": "object",
         "properties": {
@@ -290,8 +482,58 @@
             "example": "2024-06-03T12:00:00.000Z"
           }
         }
+      },
+
+      "Task": {
+        "type": "object",
+        "required": ["title", "user"],
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "Estudar Node.js"
+          },
+          "description": {
+            "type": "string",
+            "example": "Revisar módulos avançados"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pendente", "em progresso", "concluída"],
+            "default": "pendente"
+          }
+        }
+      },
+
+      "TaskResponse": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "Estudar Node.js"
+          },
+          "description": {
+            "type": "string",
+            "example": "Revisar módulos avançados"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pendente", "em progresso", "concluída"],
+            "default": "pendente"
+          },
+          "user": {
+            "type": "string",
+            "format": "mongo-id",
+            "example": "665f1a2e3c4d5e6f7g8h9i0j"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-06-03T12:00:00.000Z"
+          }
+        }
       }
     },
+
     "securitySchemes": {
       "bearerAuth": {
         "type": "http",
