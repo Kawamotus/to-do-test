@@ -1,0 +1,18 @@
+services:
+  api:
+    image: 'node:20.18.0-alpine'
+    working_dir: /api
+    volumes:
+      - .:/api
+    ports:
+      - '3000:3000'
+    environment:
+      - MONGODB_URI=mongodb://database:27017/todo-db
+    depends_on:
+      - database
+    command: 'npm run dev'
+
+  database:
+    image: 'mongo:latest'
+    ports:
+      - '27020:27017'

@@ -6,7 +6,9 @@ import taskRoutes from './modules/task/task.routes';
 import { errorHandler } from './core/http/errorHandler';
 import swaggerUi from 'swagger-ui-express';
 import swaggerDocs from './swagger.json';
+import { config } from 'dotenv';
 
+config();
 class App {
   public express: express.Application;
 
@@ -24,7 +26,7 @@ class App {
 
   private async database(): Promise<void> {
     try {
-      await mongoose.connect('mongodb://localhost:27017/teste-todo');
+      await mongoose.connect(process.env.MONGODB_URI!);
       console.log('Conectado ao MongoDB');
     } catch (error) {
       console.error('Falha na conexão com MongoDB:', error);
